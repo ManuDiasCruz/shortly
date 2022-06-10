@@ -46,14 +46,15 @@ export async function signIn(req, res){
 
         if (!bcrypt.compareSync(password, user[0].password)){
             return res.status(401).send(`Wrong password.`)
-        } else {
-            const token = uuid()
-            await db.query(
-                `INSERT INTO sessions (userId, token) VALUES ($1, $2)`,
-                [user[0]._id, token]
-            )
-            return res.status(201).send(token)
-        } 
+        }
+
+        const token = uuid()
+        await db.query(
+            `INSERT INTO sessions (userId, token) VALUES ($1, $2)`,
+            [user[0]._id, token]
+        )
+        res.locals.user = user._id
+        return res.status(201).send(token)
 
     } catch (error) {
 
