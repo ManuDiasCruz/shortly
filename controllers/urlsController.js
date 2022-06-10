@@ -17,7 +17,7 @@ export async function createShortUrl(req, res){
         // Inserting the url
         const shortUrl = nanoid(8)
         await db.query(
-            `INSERT INTO urls (userId, url, shortUrl, visits) VALUES ($1, $2, $3)`,
+            `INSERT INTO urls (userId, url, shortUrl, visitCount) VALUES ($1, $2, $3)`,
             [userId, url, shortUrl, 0]
         )
         res.status(201).send(shortUrl)
@@ -62,7 +62,7 @@ export async function openShortUrl(req, res){
         )	
         if (rows.rowCount > 0) {
             const rows = await db.query(
-                `UPDATE urls SET visits = visits + 1 WHERE shortUrl = $1`,
+                `UPDATE urls SET visitCount = visitCount + 1 WHERE shortUrl = $1`,
                 [shortUrl]
             )
             return res.redirect(rows[0].url)
