@@ -4,7 +4,7 @@ import {v4 as uuid} from "uuid"
 import db from "./../db.js"
 
 export async function signUp(req, res){
-    const {name, email, password, repeatedPassword} = req.body
+    const {name, email, password, confirmPassword} = req.body
     try {
         // There is already a registered user with this email
         const user = await db.query(
@@ -16,7 +16,7 @@ export async function signUp(req, res){
     
         // Inserting the user
         const SALT = 10
-        const encryptedPassword = bcrypt.hashSync(password, SALT)
+        const confirmPassword = bcrypt.hashSync(password, SALT)
         await db.query(
             `INSERT INTO users (name, email, password) VALUES ($1, $2, $3)`,
             [name, email, encryptedPassword]

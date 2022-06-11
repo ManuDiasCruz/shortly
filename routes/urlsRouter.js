@@ -1,6 +1,6 @@
 import { Router } from "express"
-import { createShortUrl, deleteUrl, getUrlById, openShortUrl } from "../controllers/urlsController"
-import { validateToken } from "../middlewares/tokenMiddleware"
+import { createShortUrl, deleteUrl, getUrlById, openShortUrl } from "../controllers/urlsController.js"
+import { validateToken } from "../middlewares/tokenMiddleware.js"
 
 
 const urlsRouter = Router()

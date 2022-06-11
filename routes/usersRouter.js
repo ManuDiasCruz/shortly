@@ -1,6 +1,6 @@
 import { Router } from "express"
-import { getRanking, getUserData } from "../controllers/usersController"
-import { validateToken } from "../middlewares/tokenMiddleware"
+import { getRanking, getUserData } from "../controllers/usersController.js"
+import { validateToken } from "../middlewares/tokenMiddleware.js"
 
 
 const usersRouter = Router()
