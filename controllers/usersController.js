@@ -22,33 +22,34 @@ export async function getUserData(req, res){
         res.status(200).send({ id: rows[0].id, name: rows[0].name, visitCount: visitsAmount, shortnedUrls: userShortUrls })
     } catch (error) {
 
-        console.log("Error accessing the url.", error)
-        res.status(500).send("Error accessing the url.")
+        console.log("Error getting user data.", error)
+        res.status(500).send("Error getting user data.")
 
     }
 }
 
-export async function openShortUrl(req, res){
-    const { shortUrl } = req.params
+export async function getRanking(req, res){
+
     try {
         
         const rows = await db.query(
-            `SELECT * FROM urls WHERE shortUrl = $1;`,
-            [shortUrl]
+            `SELECT users.id, 
+                    users.name, 
+                    COUNT (urls.userId) as linksCount, 
+                    COALESCE ( SUM (urls.visitCount)) as visitCount
+             FROM users WHERE 
+             JOIN urls
+             ON users.id = urls.userId
+             ORDER BY "visitCount" DESC LIMIT 10;`
         )	
-        if (rows.rowCount > 0) {
-            const rows = await db.query(
-                `UPDATE urls SET visitCount = visitCount + 1 WHERE shortUrl = $1`,
-                [shortUrl]
-            )
-            return res.redirect(rows[0].url)
-        }else
-            return res.status(404).send("There isn't a url with this id.")
-
+        if (!rows) 
+            return res.status(404).send(`There isn't data at users table.`)
+        
+        res.status(200).send(rows)
     } catch (error) {
 
-        console.log("Error openning the url.", error)
-        res.status(500).send("Error openning the url.")
+        console.log("Error getting ranking data.", error)
+        res.status(500).send("Error getting ranking data.")
 
     }
 }
