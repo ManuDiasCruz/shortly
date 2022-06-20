@@ -19,9 +19,9 @@ export async function validateToken(req, res, next){
         )
         if (!session) return res.status(401).send("No session.")
 
-        console.log(session[0].userId)
+        console.log(session.rows[0])
 
-        res.locals.userId = session[0].userId
+        res.locals.userId = session.rows[0].userid
 
         next()
 

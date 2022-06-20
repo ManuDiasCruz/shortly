@@ -19,7 +19,8 @@ export async function getUserData(req, res){
             `SELECT SUM (visitCount) FROM urls WHERE userId = $1;`,
             [id]
         )
-        res.status(200).send({ id: rows[0].id, name: rows[0].name, visitCount: visitsAmount, shortnedUrls: userShortUrls })
+        console.log(rows.rows[0].id, rows.rows[0].name, visitsAmount, userShortUrls)
+        res.status(200).send({ id: rows.rows[0].id, name: rows.rows[0].name, visitCount: visitsAmount, shortnedUrls: userShortUrls })
     } catch (error) {
 
         console.log("Error getting user data.", error)
@@ -33,14 +34,14 @@ export async function getRanking(req, res){
     try {
         
         const rows = await db.query(
-            `SELECT users.id, 
-                    users.name, 
-                    COUNT (urls.userId) as linksCount, 
-                    COALESCE ( SUM (urls.visitCount)) as visitCount
-             FROM users WHERE 
-             JOIN urls
-             ON users.id = urls.userId
-             ORDER BY "visitCount" DESC LIMIT 10;`
+            `SELECT u.id, 
+                    u.name,
+                    COUNT (l.userid) as linksCount, 
+                    COALESCE ( SUM (l.visitCount)) as visitCount
+            FROM users u, urls l
+            WHERE u.id = l.userid
+            GROUP BY u.id
+            ORDER BY visitcount DESC LIMIT 10;`
         )	
         if (!rows) 
             return res.status(404).send(`There isn't data at users table.`)

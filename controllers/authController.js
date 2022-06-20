@@ -5,6 +5,7 @@ import db from "./../db.js"
 
 export async function signUp(req, res){
     const {name, email, password, confirmPassword} = req.body
+    console.log("testando")
     try {
         // There is already a registered user with this email
         const user = await db.query(
@@ -19,7 +20,7 @@ export async function signUp(req, res){
         const confirmPassword = bcrypt.hashSync(password, SALT)
         await db.query(
             `INSERT INTO users (name, email, password) VALUES ($1, $2, $3)`,
-            [name, email, encryptedPassword]
+            [name, email, confirmPassword]
         )
         res.status(201).send('User was Created at DB >> users table.')
         console.log("created")
@@ -27,7 +28,7 @@ export async function signUp(req, res){
     } catch (error) {
 
         console.log("Error creating new user.", error)
-        res.status(500).send("Error creatig new user.")
+        res.status(500).send(error.message)
 
     }
 }
@@ -43,23 +44,23 @@ export async function signIn(req, res){
         )		
         if (!user) 
             return res.status(404).send(`There isn't a user with this email: ${email}.`)
-
-        if (!bcrypt.compareSync(password, user[0].password)){
+        console.log(user.rows[0].id)
+        if (!bcrypt.compareSync(password, user.rows[0].password)){
             return res.status(401).send(`Wrong password.`)
         }
 
         const token = uuid()
         await db.query(
             `INSERT INTO sessions (userId, token) VALUES ($1, $2)`,
-            [user[0]._id, token]
+            [user.rows[0].id, token]
         )
-        res.locals.user = user._id
+        res.locals.user = user.id
         return res.status(201).send(token)
 
     } catch (error) {
 
         console.log("Error logging in user.", error)
-        res.status(500).send("Error logging in user.")
+        res.status(500).send(error.message)
         
     }
 }

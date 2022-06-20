@@ -5,19 +5,21 @@ export async function createShortUrl(req, res){
     const { url } = req.body
     const { userId } = res.locals
 
+    console.log(userId)
+
     try {
         // This url is already registered
-        const url = await db.query(
+        const query = await db.query(
             `SELECT * FROM urls WHERE url = $1;`,
             [url]
         )	
-        if (user.rowCount > 0) 
+        if (query.rowCount > 0) 
             return res.status(409).send(`There url is already registered.`)
 
         // Inserting the url
         const shortUrl = nanoid(8)
         await db.query(
-            `INSERT INTO urls (userId, url, shortUrl, visitCount) VALUES ($1, $2, $3)`,
+            `INSERT INTO urls (userId, url, shortUrl, visitCount) VALUES ($1, $2, $3, $4)`,
             [userId, url, shortUrl, 0]
         )
         res.status(201).send(shortUrl)
@@ -39,6 +41,7 @@ export async function getUrlById(req, res){
             `SELECT * FROM urls WHERE id = $1;`,
             [id]
         )	
+        console.log(rows.rows[0])
         if (rows.rowCount > 0) 
             return res.status(200).send(rows[0])
         else
@@ -53,6 +56,7 @@ export async function getUrlById(req, res){
 }
 
 export async function openShortUrl(req, res){
+    console.log("openShortUrl")
     const { shortUrl } = req.params
     try {
         
@@ -78,6 +82,7 @@ export async function openShortUrl(req, res){
 }
 
 export async function deleteUrl(req, res){
+    console.log("deleteUrl")
     const { id } = req.params
     const { userId } = res.locals
 
@@ -86,7 +91,8 @@ export async function deleteUrl(req, res){
         const rows = await db.query(
             `SELECT * FROM urls WHERE id = $1;`,
             [id]
-        )	
+        )
+        console.log(rows.rows[0])
         if (rows.rowCount > 0){
             if (rows[0].userId == userId){
                 await db.query(
